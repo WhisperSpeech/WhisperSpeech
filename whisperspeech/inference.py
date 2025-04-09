@@ -28,11 +28,11 @@ def get_compute_device():
     return preferred_device
 
 # %% ../nbs/D. Common inference utilities.ipynb 4
-def load_model(ref=None, spec=None, device='cpu'):
+def load_model(ref=None, spec=None, device='cpu', cache_dir=None):
     if spec is not None: return spec
     if ":" in ref:
         repo_id, filename = ref.split(":", 1)
-        local_filename = hf_hub_download(repo_id=repo_id, filename=filename)
+        local_filename = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=cache_dir)
     else:
         local_filename = ref
     return torch.load(local_filename, map_location=device)

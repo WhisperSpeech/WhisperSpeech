@@ -67,6 +67,7 @@ def process_shard(
     output:str,          # output shard URL/path
     key:str='audio',     # string to replace with 'vad' in the shard name
     model:str='whisperx' # VAD model to use (possible values: `whisperx` or `pyannote`)
+    cache_dir: str = None
 ):  
     ds = wds.WebDataset(url).compose(
         wds.decode(utils.torch_audio_opus),
@@ -75,10 +76,10 @@ def process_shard(
     dl = torch.utils.data.DataLoader(ds, num_workers=1, batch_size=None)
     
     if model == 'whisperx':
-        vad_model = whisperx.vad.load_vad_model(get_compute_device())
+        vad_model = whisperx.vad.load_vad_model(get_compute_device(), cache_dir=cache_dir)
     elif model == 'pyannote':
         from pyannote.audio import Pipeline
-        pyannote_vad = Pipeline.from_pretrained("pyannote/voice-activity-detection")
+        pyannote_vad = Pipeline.from_pretrained("pyannote/voice-activity-detection", use_auth_token=None, cache_dir=cache_dir)
     
     def calc_power(audio, sr, ts, te):
         snd = audio[:,int(ts*sr):int(te*sr)]

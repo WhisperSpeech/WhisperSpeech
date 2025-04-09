@@ -114,6 +114,7 @@ def process_shard(
     n_samples:int=None, # limit the number of samples (useful for quick benchmarking)
     whisper_model:str="base.en", # Whisper model size
     language:str="en",  # transcription language
+    cache_dir: str = None
 ):
     device = get_compute_device()
     if output is None: output = flac_to_txt_name(input, whisper_model)
@@ -131,7 +132,7 @@ def process_shard(
     )
     dl = DataLoader(ds, num_workers=2, batch_size=None)
     
-    whmodel = whisper.load_model(whisper_model).to(device)
+    whmodel = whisper.load_model(whisper_model, cache_dir=cache_dir).to(device)
     decoding_options = whisper.DecodingOptions(language=language)
     
     tmp = output+".tmp"

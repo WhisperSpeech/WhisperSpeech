@@ -32,11 +32,12 @@ def prepare_metrics(
     input:str,  # audio file webdataset file path
     output:str, # output shard path
     n_samples:int=None, # process a limited amount of samples
+    cache_dir: str = None
     
 ):
     device = get_compute_device()
 
-    model = Model.from_pretrained(expanduser('~/.cache/brouhaha.ckpt'), strict=False)
+    model = Model.from_pretrained(expanduser('~/.cache/brouhaha.ckpt'), strict=False, cache_dir=cache_dir)
     snr_pipeline = RegressiveActivityDetectionPipeline(segmentation=model).to(torch.device(device))
         
     total = n_samples if n_samples else 'noinfer'

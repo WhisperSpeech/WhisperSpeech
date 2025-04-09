@@ -42,10 +42,10 @@ class Pipeline:
          0.2702,  0.1699, -0.1443, -0.9614,  0.3261,  0.1718,  0.3545, -0.0686]
     )
     
-    def __init__(self, t2s_ref=None, s2a_ref=None, optimize=True, torch_compile=False, device=None):
+    def __init__(self, t2s_ref=None, s2a_ref=None, optimize=True, torch_compile=False, device=None, cache_dir=None):
         if device is None: device = inference.get_compute_device()
         self.device = device
-        args = dict(device = device)
+        args = dict(device = device, cache_dir=cache_dir)
         try:
             if t2s_ref:
                 args["ref"] = t2s_ref
@@ -54,10 +54,10 @@ class Pipeline:
         except:
             print("Failed to load the T2S model:")
             print(traceback.format_exc())
-        args = dict(device = device)
+        args = dict(device = device, cache_dir=cache_dir)
         try:
             if s2a_ref:
-                spec = inference.load_model(ref=s2a_ref, device=device)
+                spec = inference.load_model(ref=s2a_ref, device=device, cache_dir=cache_dir)
                 if [x for x in spec['state_dict'].keys() if x.startswith('cond_embeddings.')]:
                     cls = s2a_delar_mup_wds_mlang_cond.SADelARTransformer
                     args['spec'] = spec

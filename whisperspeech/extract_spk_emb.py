@@ -42,6 +42,7 @@ def process_shard(
     output:str,         # output shard URL/path
     batch_size:int=16,        # batch size
     n_samples:int=None, # limit the number of samples (useful for quick benchmarking)
+    cache_dir: str = None
 ):
     device = get_compute_device()
     if n_samples is None: total = 'noinfer'
@@ -51,6 +52,7 @@ def process_shard(
     
     classifier = EncoderClassifier.from_hparams("speechbrain/spkrec-ecapa-voxceleb",
                                                 savedir=expanduser("~/.cache/speechbrain/"),
+                                                cache_dir=cache_dir,
                                                 run_opts = {"device": device})
     
     with utils.AtomicTarWriter(output) as sink:

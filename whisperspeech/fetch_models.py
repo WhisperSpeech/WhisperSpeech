@@ -14,9 +14,9 @@ from os.path import expanduser
 import urllib.request
 
 # %% ../nbs/0. Download models.ipynb 3
-def load_whisperx(model, lang):
+def load_whisperx(model, lang, cache_dir=None):
     try:
-        whisperx.asr.load_model(model, "cpu", compute_type="float16", language=lang)
+        whisperx.asr.load_model(model, "cpu", compute_type="float16", language=lang, cache_dir=cache_dir)
     except ValueError as exc:
         print(exc.args[0])
         if exc.args[0] != "Requested float16 compute type, but the target device or backend do not support efficient float16 computation.":
@@ -24,15 +24,15 @@ def load_whisperx(model, lang):
 
 @call_parse
 def main():
-    EncodecModel.encodec_model_24khz()
-    whisper.load_model('base.en')
-    whisper.load_model('small.en')
-    whisper.load_model('medium')
-    whisperx.vad.load_vad_model('cpu')
-    load_whisperx('small.en', 'en')
-    load_whisperx('medium.en', 'en')
-    load_whisperx('medium', 'en')
-    load_whisperx('large-v3', 'en')
+    EncodecModel.encodec_model_24khz(cache_dir=cache_dir)
+    whisper.load_model('base.en', cache_dir=cache_dir)
+    whisper.load_model('small.en', cache_dir=cache_dir)
+    whisper.load_model('medium', cache_dir=cache_dir)
+    whisperx.vad.load_vad_model('cpu', cache_dir=cache_dir)
+    load_whisperx('small.en', 'en', cache_dir=cache_dir)
+    load_whisperx('medium.en', 'en', cache_dir=cache_dir)
+    load_whisperx('medium', 'en', cache_dir=cache_dir)
+    load_whisperx('large-v3', 'en', cache_dir=cache_dir)
     EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb",
                                    savedir=expanduser("~/.cache/speechbrain/"))
     urllib.request.urlretrieve('https://github.com/marianne-m/brouhaha-vad/raw/main/models/best/checkpoints/best.ckpt',

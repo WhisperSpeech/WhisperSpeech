@@ -494,8 +494,8 @@ class SADelARTransformer(nn.Module):
     # inference
     #
     @classmethod
-    def load_model(cls, ref="collabora/whisperspeech:s2a-q4-small-en+pl.model", spec=None, device=None):
-        spec = inference.load_model(ref=ref, spec=spec, device=device)
+    def load_model(cls, ref="collabora/whisperspeech:s2a-q4-small-en+pl.model", spec=None, device=None, cache_dir=None):
+        spec = inference.load_model(ref=ref, spec=spec, device=device, cache_dir=cache_dir)
         if '_extra_state' not in spec['state_dict'] and 'speaker_map' in spec['config']: spec['state_dict']['_extra_state'] = { 'speaker_map': spec['config']['speaker_map'] }
         model = cls(**spec['config'], tunables=Tunables(**Tunables.upgrade(spec['tunables'])))
         model.load_state_dict(spec['state_dict'])
@@ -626,12 +626,12 @@ def _make_model(size:str, quantizers:int=4, tunables:Tunables=Tunables(), **kwar
     if size == 'medium':
         return SADelARTransformer(depth=24, n_head=16, **kwargs)
 
-def make_model(size:str, quantizers:int=4, frozen_embeddings_model:str=None, frozen_acoustic_embeddings:bool=False, spk_width:int=None, tunables:Tunables=Tunables(), dataset=None):
+def make_model(size:str, quantizers:int=4, frozen_embeddings_model:str=None, frozen_acoustic_embeddings:bool=False, spk_width:int=None, tunables:Tunables=Tunables(), dataset=None, cache_dir=None):
     from encodec.model import EncodecModel
     from whisperspeech import vq_stoks
 
     amodel = EncodecModel.encodec_model_24khz() if frozen_acoustic_embeddings else None
-    vqmodel = vq_stoks.RQBottleneckTransformer.load_model(frozen_embeddings_model) if frozen_embeddings_model else None
+    vqmodel = vq_stoks.RQBottleneckTransformer.load_model(frozen_embeddings_model, cache_dir=cache_dir) if frozen_embeddings_model else None
     model = _make_model(size, quantizers, tunables,
                         spk_width=spk_width,
                         atoks_width=amodel and amodel.quantizer.vq.layers[0]._codebook.embed.shape[-1],

@@ -34,15 +34,17 @@ def prepare_stoks(
     n_samples:int=None, # process a limited amount of samples
     batch_size:int=64, # process several segments at once
     kind:str="max", # could be eqvad to get more uniform chunk lengths
+    cache_dir: str = None
     
 ):
     device = get_compute_device()
-    vq_model = vq_stoks.RQBottleneckTransformer.load_model(vq_model).to(device)
+    vq_model = vq_stoks.RQBottleneckTransformer.load_model(vq_model, cache_dir=cache_dir).to(device)
     vq_model.ensure_whisper()
     
     spk_classifier = EncoderClassifier.from_hparams("speechbrain/spkrec-ecapa-voxceleb",
                                                     savedir=expanduser("~/.cache/speechbrain/"),
-                                                    run_opts = {"device": device})
+                                                    run_opts = {"device": device},
+                                                   cache_dir=cache_dir)
     
     total = n_samples//batch_size if n_samples else 'noinfer'
 

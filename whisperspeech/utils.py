@@ -23,6 +23,8 @@ def wrap_downloader(old):
         if os.environ.get('HUGGINGFACE_LOCAL_ONLY', False):
             print(f"Enforcing local_files_only for {old.__qualname__}")
             kwargs['local_files_only'] = True
+        if 'cache_dir' in kwargs:  # Added to ensure cache_dir is included
+            print(f"Using cache directory: {kwargs['cache_dir']}")
         return old(*args, **kwargs)
     return new
 

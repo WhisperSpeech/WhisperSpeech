@@ -353,14 +353,14 @@ class TSARTransformer(nn.Module):
     #
     @classmethod
     def load_model(cls, ref="collabora/whisperspeech:t2s-small-en+pl.model",
-                   repo_id=None, filename=None, local_filename=None, spec=None, device=None):
+                   repo_id=None, filename=None, local_filename=None, spec=None, device=None, cache_dir=None):
         if repo_id is None and filename is None and local_filename is None and spec is None:
             if ":" in ref:
                 repo_id, filename = ref.split(":", 1)
             else:
                 local_filename = ref
         if not local_filename and spec is None:
-            local_filename = hf_hub_download(repo_id=repo_id, filename=filename)
+            local_filename = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=cache_dir)
         if spec is None:
             spec = torch.load(local_filename, map_location=device)
         model = cls(**spec['config'], tunables=Tunables(**Tunables.upgrade(spec['tunables'])))

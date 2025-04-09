@@ -353,14 +353,14 @@ class RQBottleneckTransformer(nn.Module):
     #
     @classmethod
     def load_model(cls, ref="collabora/spear-tts-pytorch:whisper-vq-stoks-medium-en+pl.model",
-                   repo_id=None, filename=None, local_filename=None):
+                   repo_id=None, filename=None, local_filename=None, cache_dir=None):
         if repo_id is None and filename is None and local_filename is None:
             if ":" in ref:
                 repo_id, filename = ref.split(":", 1)
             else:
                 local_filename = ref
         if not local_filename:
-            local_filename = hf_hub_download(repo_id=repo_id, filename=filename)
+            local_filename = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=cache_dir)
         spec = torch.load(local_filename) 
         vqmodel = cls(**spec['config'], tunables=Tunables(**Tunables.upgrade(spec.get('tunables', {}))))
         vqmodel.load_state_dict(spec['state_dict'])
