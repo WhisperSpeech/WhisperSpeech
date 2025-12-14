@@ -13,8 +13,8 @@ from fastprogress import progress_bar
 
 from pathlib import Path
 
-from whisperspeech2.modules import *
-from whisperspeech2 import languages, inference
+from whisperspeech.modules import *
+from whisperspeech import languages, inference
 
 
 class CharTokenizer:
