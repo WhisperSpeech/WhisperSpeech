@@ -1,7 +1,7 @@
 __all__ = ['Vocoder']
 
 from vocos import Vocos
-from whisperspeech2 import inference
+from whisperspeech import inference
 import torch
 
 class Vocoder:
