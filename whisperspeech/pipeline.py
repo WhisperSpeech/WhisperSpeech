@@ -1,9 +1,9 @@
 from os.path import expanduser
 import torch
-from whisperspeech2.t2s_up_wds_mlang_enclm import TSARTransformer
-from whisperspeech2.s2a_delar_mup_wds_mlang import SADelARTransformer
-from whisperspeech2.a2wav import Vocoder
-from whisperspeech2 import inference, s2a_delar_mup_wds_mlang_cond
+from whisperspeech.t2s_up_wds_mlang_enclm import TSARTransformer
+from whisperspeech.s2a_delar_mup_wds_mlang import SADelARTransformer
+from whisperspeech.a2wav import Vocoder
+from whisperspeech import inference, s2a_delar_mup_wds_mlang_cond
 import traceback
 from pathlib import Path
 
