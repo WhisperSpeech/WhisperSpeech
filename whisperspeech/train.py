@@ -20,6 +20,10 @@ import IPython
 
 import torch
 import torch.nn as nn
+try:  # torch >= 2.3
+    from torch.amp import GradScaler
+except ImportError:  # torch < 2.3
+    from torch.cuda.amp import GradScaler
 from torch.utils.data.dataloader import DataLoader
 from torch.profiler import record_function
 from whisperspeech import utils
@@ -180,7 +184,7 @@ def train(checkpoint_path, model, train, val, half=True, bs=16, lr=1e-4, drop_la
 
         optimizer = torch.optim.AdamW(lr=lr, betas=(0.9, 0.95), fused=device!='cpu', params=groups)
         model._optimizer = optimizer
-        scaler = torch.cuda.amp.GradScaler(enabled=half)
+        scaler = GradScaler(enabled=half)
         
         if lr_schedule == 'cosine':
             lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
