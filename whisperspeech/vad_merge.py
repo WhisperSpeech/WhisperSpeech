@@ -120,6 +120,7 @@ def chunk_merger(prefix, should_cut=lambda x: x > 30):
                     merged_chunks.append(curr_chunks)
                     curr_start = ts
                     spk_acc = new_spk
+                    spk_acc_N = 1
                     curr_chunks = []
                 curr_spk = new_spk
                 if secs > 2:
