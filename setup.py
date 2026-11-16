@@ -1,7 +1,7 @@
-from pkg_resources import parse_version
 from configparser import ConfigParser
 import setuptools, shlex
-assert parse_version(setuptools.__version__)>=parse_version('36.2')
+# No pkg_resources version check here: pkg_resources was removed from recent setuptools,
+# so importing it made `pip install` fail before setup() even ran.
 
 # note: all settings are in settings.ini; edit there, not here
 config = ConfigParser(delimiters=['='])
