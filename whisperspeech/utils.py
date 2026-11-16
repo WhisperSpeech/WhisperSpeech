@@ -234,7 +234,11 @@ def torch_audio_opus(key, data):
         fname = os.path.join(dirname, f"file.{extension}")
         with open(fname, "wb") as stream:
             stream.write(data)
-        return torchaudio.load(fname, backend='soundfile' if extension == "mp3" else None)
+        # libsndfile reads flac/wav/ogg/opus/mp3 without FFmpeg; m4a, wma and sox still need torchaudio's
+        # FFmpeg backend, which only exists in torchaudio < 2.9.
+        if extension in ('m4a', 'wma', 'sox'): return torchaudio.load(fname)
+        from .inference import load_audio
+        return load_audio(fname)
 
 # %% ../nbs/D. Common dataset utilities.ipynb 18
 def find_audio(stream, okey='audio', ikeys='flac;mp3;sox;wav;m4a;ogg;wma;opus'):

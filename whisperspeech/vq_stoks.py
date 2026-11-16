@@ -414,7 +414,8 @@ class RQBottleneckTransformer(nn.Module):
 
     def encode_audio(self, audio):
         if isinstance(audio, str):
-            x, sr = torchaudio.load(audio)
+            from whisperspeech.inference import load_audio
+            x, sr = load_audio(audio)
             x = torchaudio.transforms.Resample(sr, 16000)(x)[0]
             audio = x.unsqueeze(0)
         return self.encode_mel(self.log_mel_spectrogram(audio).to(self.device))
