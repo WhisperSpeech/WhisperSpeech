@@ -361,7 +361,7 @@ class RQBottleneckTransformer(nn.Module):
                 local_filename = ref
         if not local_filename:
             local_filename = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=cache_dir)
-        spec = torch.load(local_filename) 
+        spec = torch.load(local_filename, map_location='cpu') # checkpoints were saved on CUDA; without this they fail to load on CPU-only machines (e.g. any Mac)
         vqmodel = cls(**spec['config'], tunables=Tunables(**Tunables.upgrade(spec.get('tunables', {}))))
         vqmodel.load_state_dict(spec['state_dict'])
         vqmodel.eval()
@@ -414,7 +414,8 @@ class RQBottleneckTransformer(nn.Module):
 
     def encode_audio(self, audio):
         if isinstance(audio, str):
-            x, sr = torchaudio.load(audio)
+            from whisperspeech.inference import load_audio
+            x, sr = load_audio(audio)
             x = torchaudio.transforms.Resample(sr, 16000)(x)[0]
             audio = x.unsqueeze(0)
         return self.encode_mel(self.log_mel_spectrogram(audio).to(self.device))
@@ -442,7 +443,7 @@ class RQBottleneckTransformer(nn.Module):
         embs = self.dequantize(stoks).to(self.whmodel[0].device)
         return self.whmodel[0].decode(embs, decoding_options)
 
-# %% ../nbs/2B. Whisper quantization (semantic token) model.ipynb 27
+# %% ../nbs/2B. Whisper quantization (semantic token) model.ipynb 28
 def make_model(size:str, no_quantize=False, tunables:Tunables=Tunables(), dataset:torch.utils.data.Dataset=None):
     common = dict(
         q_depth=1, depth=1, threshold_ema_dead_code=0, use_cosine_sim=True, tunables=tunables,

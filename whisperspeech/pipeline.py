@@ -78,7 +78,6 @@ class Pipeline:
     def extract_spk_emb(self, fname):
         """Extracts a speaker embedding from the first 30 seconds of the give audio file.
         """
-        import torchaudio
         if self.encoder is None:
             device = self.device
             if device == 'mps': device = 'cpu' # operator 'aten::_fft_r2c' is not currently implemented for the MPS device
@@ -86,11 +85,7 @@ class Pipeline:
             self.encoder = EncoderClassifier.from_hparams("speechbrain/spkrec-ecapa-voxceleb",
                                                           savedir=expanduser("~/.cache/speechbrain/"),
                                                           run_opts={"device": device})
-        audio_info = torchaudio.info(fname)
-        actual_sample_rate = audio_info.sample_rate
-        num_frames = actual_sample_rate * 30 # specify 30 seconds worth of frames
-        samples, sr = torchaudio.load(fname, num_frames=num_frames)
-        samples = samples[:, :num_frames]
+        samples, sr = inference.load_audio(fname, max_seconds=30)
         samples = self.encoder.audio_normalizer(samples[0], sr)
         spk_emb = self.encoder.encode_batch(samples.unsqueeze(0))
         
