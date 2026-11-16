@@ -167,7 +167,12 @@ import tempfile
 
 # %% ../nbs/D. Common dataset utilities.ipynb 16
 # a patch to ignore invalid utf-8 metadata
-import torio.io._streaming_media_decoder
+# torio was removed in torchaudio 2.9. Without it there is nothing to patch, and an unconditional
+# import made every module that uses utils (vq_stoks, all data preparation) fail on import.
+try:
+    import torio.io._streaming_media_decoder
+except ImportError:
+    torio = None
 def new_parse_si(i):
     media_type = i.media_type
     try:
@@ -211,7 +216,7 @@ def new_parse_si(i):
         bits_per_sample=None,
         metadata=metadata,
     )
-torio.io._streaming_media_decoder._parse_si = new_parse_si
+if torio is not None: torio.io._streaming_media_decoder._parse_si = new_parse_si
 
 def torch_audio_opus(key, data):
     """Decode audio using the torchaudio library.
@@ -231,7 +236,7 @@ def torch_audio_opus(key, data):
             stream.write(data)
         return torchaudio.load(fname, backend='soundfile' if extension == "mp3" else None)
 
-# %% ../nbs/D. Common dataset utilities.ipynb 17
+# %% ../nbs/D. Common dataset utilities.ipynb 18
 def find_audio(stream, okey='audio', ikeys='flac;mp3;sox;wav;m4a;ogg;wma;opus'):
     ikeys = ikeys.split(';')
     for s in stream:
@@ -242,7 +247,7 @@ def find_audio(stream, okey='audio', ikeys='flac;mp3;sox;wav;m4a;ogg;wma;opus'):
                 break
             # implicitly skips elements without any audio
 
-# %% ../nbs/D. Common dataset utilities.ipynb 18
+# %% ../nbs/D. Common dataset utilities.ipynb 19
 def vad_dataset(shards, ikey='vad.npy', kind='vad'):
     return wds.WebDataset(shards).compose(
         wds.decode(torch_audio_opus),
@@ -251,7 +256,7 @@ def vad_dataset(shards, ikey='vad.npy', kind='vad'):
         lambda x: split_to_chunks(x, ikey=ikey),
     )
 
-# %% ../nbs/D. Common dataset utilities.ipynb 19
+# %% ../nbs/D. Common dataset utilities.ipynb 20
 @contextmanager
 def AtomicTarWriter(name, throwaway=False):
     Path(name).parent.mkdir(exist_ok=True, parents=True)
@@ -261,7 +266,7 @@ def AtomicTarWriter(name, throwaway=False):
     if not throwaway:
         os.rename(tmp, name)
 
-# %% ../nbs/D. Common dataset utilities.ipynb 20
+# %% ../nbs/D. Common dataset utilities.ipynb 21
 def readlines(fname):
     with open(fname) as file:
         return [line.rstrip() for line in file]
